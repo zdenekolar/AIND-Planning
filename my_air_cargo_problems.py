@@ -58,7 +58,18 @@ class AirCargoProblem(Problem):
             :return: list of Action objects
             '''
             loads = []
-            # TODO create all load ground actions from the domain Load action
+            for a in self.airports:
+                for p in self.planes:
+                    for c in self.cargos:
+                        precond_pos = [expr('At({}, {})'.format(c, a)),
+                                       expr('At({}, {})'.format(p, a)),
+                                       expr('Cargo({})'.format(c)),
+                                       expr('Plane({})'.format(p)),
+                                       expr('Airport({})'.format(a))]
+                        precond_neg = []
+                        effect_add = [expr('In({}, {})'.format(c, p))]
+                        effect_rem = [expr('At({}, {})'.format(c, a))]
+                        loads.append([precond_pos, precond_neg, effect_add, effect_rem])
             return loads
 
         def unload_actions():
@@ -67,7 +78,18 @@ class AirCargoProblem(Problem):
             :return: list of Action objects
             '''
             unloads = []
-            # TODO create all Unload ground actions from the domain Unload action
+            for a in self.airports:
+                for p in self.planes:
+                    for c in self.cargos:
+                        precond_pos = [expr('In({}, {})'.format(c, p)),
+                                       expr('At({}, {})'.format(p, a)),
+                                       expr('Cargo({})'.format(c)),
+                                       expr('Plane({})'.format(p)),
+                                       expr('Airport({})'.format(a))]
+                        precond_neg = []
+                        effect_add = [expr('At({}, {})'.format(c, a))]
+                        effect_remove = [expr('In({}, {})'.format(c, p))]
+                        unloads.append([precond_pos, precond_neg, effect_add, effect_remove])
             return unloads
 
         def fly_actions():
@@ -103,6 +125,11 @@ class AirCargoProblem(Problem):
         """
         # TODO implement
         possible_actions = []
+        for action in self.state_map():
+            for preconds in action.precond_pos:
+                if False in preconds:
+                    print('KO')
+
         return possible_actions
 
     def result(self, state: str, action: Action):
@@ -193,3 +220,7 @@ def air_cargo_p2() -> AirCargoProblem:
 def air_cargo_p3() -> AirCargoProblem:
     # TODO implement Problem 3 definition
     pass
+
+if __name__ == '__main__':
+    ac1 = air_cargo_p1()
+    ac1.actions()
