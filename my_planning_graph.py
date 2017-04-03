@@ -223,22 +223,23 @@ class PlanningGraph():
         self.s_levels = []
         self.a_levels = []
         self.create_graph()
-        print('Problem:', self.problem)
-        print('Fs:', self.fs.neg, self.fs.pos)
-        print('Serial:', self.serial)
-        print('All actions:', self.all_actions)
-        for action in self.all_actions:
-            print(action.name, action.args, action.precond_pos, action.precond_neg)
-        print('S levels', self.s_levels)
-        for i, lev in enumerate(self.s_levels):
-            print(i, lev)
-            for node in lev:
-                node.show()
-        print('A levels', self.a_levels)
-        for i, lev in enumerate(self.a_levels):
-            print(i, lev)
-            for node in lev:
-                node.show()
+        if False:
+            print('Problem:', self.problem)
+            print('Fs:', self.fs.neg, self.fs.pos)
+            print('Serial:', self.serial)
+            print('All actions:', self.all_actions)
+            for action in self.all_actions:
+                print(action.name, action.args, action.precond_pos, action.precond_neg)
+            print('S levels', self.s_levels)
+            for i, lev in enumerate(self.s_levels):
+                print(i, lev)
+                for node in lev:
+                    node.show()
+            print('A levels', self.a_levels)
+            for i, lev in enumerate(self.a_levels):
+                print(i, lev)
+                for node in lev:
+                    node.show()
 
     def noop_actions(self, literal_list):
         '''create persistent action for each possible fluent
@@ -303,11 +304,11 @@ class PlanningGraph():
         print(self.s_levels[level])
         while not leveled:
             self.add_action_level(level)
-            break
         #     self.update_a_mutex(self.a_levels[level])
 
-            # level += 1
-            # self.add_literal_level(level)
+            level += 1
+            self.add_literal_level(level)
+            break
             # self.update_s_mutex(self.s_levels[level])
 
             # if self.s_levels[level] == self.s_levels[level - 1]:
@@ -382,34 +383,44 @@ class PlanningGraph():
         #   parent sets of the S nodes
         print('Literal level add, level {}'.format(level))
         self.s_levels.append(set())
-        for node in self.a_levels[level]:
+        for node in self.a_levels[level-1]:
+            # print('- action', node.action, node.prenodes, node.effnodes)
+            print(node.action.name)
+            print(node.action.effect_add, node.action.effect_rem)
+            print('FS', self.fs.neg, self.fs.pos)
+            for effect in node.action.effect_add:
+                print('EFF ADD', effect)
+            for effect in node.action.effect_rem:
+                print('EFF REM', effect)
 
-            node.show()
-            literal = None
-            print('- literal', node.literal, node.is_pos, node.symbol)
-            if node.is_pos:
-                for action in self.all_actions:
-                    print('POS', action.name, action.args, action.precond_pos, action.precond_neg)
-                    if node.symbol in action.precond_pos:
-                        new_node = PgNode_a(action)
-                        new_node.parents.add(node)
-                        self.a_levels[level].add(new_node)
-                        print('*** POS {} Node added'.format(node))
-                        new_node.show()
-                        print('***')
 
-            if not node.is_pos:
-                for action in self.all_actions:
-                    print('NEG', action.name, action.args, action.precond_pos, action.precond_neg)
-                    if node.symbol in action.precond_neg:
-                        new_node = PgNode_a(action)
-                        new_node.parents.add(node)
-                        self.a_levels[level].add(new_node)
-                        print('*** NEG {} Node added'.format(node))
-                        new_node.show()
-                        print('***')
 
-        print('Action level end')
+            # node.show()
+            # literal = None
+            # print('- literal', node.literal, node.is_pos, node.symbol)
+            # if node.is_pos:
+            #     for action in self.all_actions:
+            #         print('POS', action.name, action.args, action.precond_pos, action.precond_neg)
+            #         if node.symbol in action.precond_pos:
+            #             new_node = PgNode_a(action)
+            #             new_node.parents.add(node)
+            #             self.a_levels[level].add(new_node)
+            #             print('*** POS {} Node added'.format(node))
+            #             new_node.show()
+            #             print('***')
+            #
+            # if not node.is_pos:
+            #     for action in self.all_actions:
+            #         print('NEG', action.name, action.args, action.precond_pos, action.precond_neg)
+            #         if node.symbol in action.precond_neg:
+            #             new_node = PgNode_a(action)
+            #             new_node.parents.add(node)
+            #             self.a_levels[level].add(new_node)
+            #             print('*** NEG {} Node added'.format(node))
+            #             new_node.show()
+            #             print('***')
+
+        print('Literal level end')
 
     def update_a_mutex(self, nodeset):
         ''' Determine and update sibling mutual exclusion for A-level nodes
